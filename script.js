@@ -3265,7 +3265,7 @@ function finishQuiz() {
   });
 
   const percentage = Math.round((correctAnswers / currentQuestions.length) * 100);
-  const passed = percentage >= 70; 
+  const passed = percentage >= 87.5; 
 
 
   document.getElementById("quizContainer").style.display = "none";
@@ -3328,7 +3328,7 @@ function showStats() {
             <div>
               <strong>${stat.date}</strong> - ${stat.mode === "exam" ? "Examen" : stat.mode === "study" ? "Estudio" : "Práctica"}
             </div>
-            <div style="font-weight: bold; color: ${stat.percentage >= 70 ? "#4CAF50" : "#f44336"};">
+            <div style="font-weight: bold; color: ${stat.percentage >= 87.5 ? "#4CAF50" : "#f44336"};">
               ${stat.percentage}% (${stat.correct}/${stat.total})
             </div>
           </div>
