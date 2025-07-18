@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Examen de Manejo - Licencia A-I</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚗 Simulador Examen de Manejo</h1>
+      <p>
+        Licencia de Conducir Clase A-I - Categoría I | 200 Preguntas Oficiales
+        del Balotario
+      </p>
+    </div>
+
+    <div id="mainMenu" class="main-menu">
+      <div class="menu-card study" onclick="startStudyMode()">
+        <div class="icon">📚</div>
+        <h3>Modo Estudio</h3>
+        <p>
+          Revisa las 200 preguntas del balotario oficial con respuestas
+          correctas y explicaciones detalladas.
+        </p>
+      </div>
+
+      <div class="menu-card exam" onclick="startExamMode()">
+        <div class="icon">📝</div>
+        <h3>Examen Simulacro</h3>
+        <p>
+          Realiza un examen oficial con 40 preguntas aleatorias y cronómetro
+          como en el examen real.
+        </p>
+      </div>
+
+      <div class="menu-card practice" onclick="showCategorySelector()">
+        <div class="icon">🎯</div>
+        <h3>Práctica por Temas</h3>
+        <p>
+          Estudia temas específicos: señales de tránsito, velocidades,
+          infracciones y más.
+        </p>
+      </div>
+
+      <div class="menu-card stats" onclick="showStats()">
+        <div class="icon">📊</div>
+        <h3>Estadísticas</h3>
+        <p>
+          Revisa tu progreso, puntajes anteriores y áreas que necesitas
+          reforzar.
+        </p>
+      </div>
+    </div>
+
+    <div id="categorySelector" class="category-selector">
+      <h2>📋 Selecciona una Categoría</h2>
+      <div class="category-grid">
+        <div class="category-card" onclick="startPracticeMode('señales')">
+          <h4>🚦 Señales de Tránsito</h4>
+          <p>Señales preventivas, reglamentarias e informativas</p>
+        </div>
+        <div class="category-card" onclick="startPracticeMode('velocidades')">
+          <h4>⚡ Límites de Velocidad</h4>
+          <p>Velocidades máximas y mínimas en diferentes vías</p>
+        </div>
+        <div class="category-card" onclick="startPracticeMode('infracciones')">
+          <h4>⚠️ Infracciones</h4>
+          <p>Multas, sanciones y sistema de puntos</p>
+        </div>
+        <div class="category-card" onclick="startPracticeMode('semaforos')">
+          <h4>🚥 Semáforos</h4>
+          <p>Luces, flechas y señales lumínicas</p>
+        </div>
+        <div class="category-card" onclick="startPracticeMode('documentos')">
+          <h4>📄 Documentos</h4>
+          <p>SOAT, licencias e inspección técnica</p>
+        </div>
+        <div class="category-card" onclick="startPracticeMode('general')">
+          <h4>🔧 Normativa General</h4>
+          <p>Reglas generales de tránsito y conducción</p>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn secondary" onclick="goBackToMenu()">
+          ← Volver al Menú
+        </button>
+      </div>
+    </div>
+
+    <div id="statsContainer" class="stats-container">
+      <h2>📊 Tus Estadísticas</h2>
+      <div id="statsContent"></div>
+      <div class="controls">
+        <button class="btn secondary" onclick="goBackToMenu()">
+          ← Volver al Menú
+        </button>
+        <button class="btn danger" onclick="clearStats()">
+          🗑️ Limpiar Historial
+        </button>
+      </div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-info">
+          <div class="info-item">
+            <span id="questionCounter">1 / 40</span>
+          </div>
+          <div class="info-item" id="modeIndicator">📝 Modo Examen</div>
+          <div class="info-item timer hidden" id="timer">
+            ⏱️ <span id="timeLeft">30:00</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="question-card">
+        <div class="question-number" id="questionNumber">Pregunta 1</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="correct-answer hidden" id="correctAnswer"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn secondary" onclick="goBackToMenu()">
+          ← Volver al Menú
+        </button>
+        <div>
+          <button class="btn secondary" id="prevBtn" onclick="previousQuestion()">
+            ← Anterior
+          </button>
+          <button class="btn" id="nextBtn" onclick="nextQuestion()">
+            Siguiente →
+          </button>
+          <button class="btn success hidden" id="finishBtn" onclick="finishQuiz()">
+            Finalizar Examen
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resultsContainer" class="results-container quiz-container">
+      <h2>🎉 ¡Examen Completado!</h2>
+      <div class="score-circle" id="scoreCircle">
+        <div class="score-text" id="scoreText">0%</div>
+      </div>
+      <div id="resultsDetails"></div>
+      <div class="controls">
+        <button class="btn" onclick="reviewAnswers()">
+          📋 Revisar Respuestas
+        </button>
+        <button class="btn success" onclick="goBackToMenu()">
+          🔄 Nuevo Examen
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
