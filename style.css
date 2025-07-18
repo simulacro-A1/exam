@@ -483,6 +483,7 @@ body {
   background: transparent;
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: red;
 }
 
 .progress-slider::-webkit-slider-thumb {
