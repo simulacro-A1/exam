@@ -5,6 +5,13 @@ let userAnswers = [];
 let startTime = null;
 let timerInterval = null;
 
+
+let currentAudioIndex = 0;
+let isPlaying = false;
+let audioSynthesis = null;
+let currentUtterance = null;
+let isAudioMode = false;
+
 const questions = [
   {
     id: 1,
@@ -2534,7 +2541,7 @@ const questions = [
     explanation:
       "La relación es ciclista-ciclovía como conductor-calzada (cada uno en su espacio designado).",
   },
-  // Preguntas 181-200
+
   {
     id: 181,
     category: "señales",
@@ -2817,8 +2824,266 @@ const questions = [
 ];
 
 
+function showAudioQuiz() {
 
+  isAudioMode = true;
+  currentAudioIndex = 0;
+  
+  if ('speechSynthesis' in window) {
+    audioSynthesis = window.speechSynthesis;
+  } else {
+    alert("Tu navegador no soporta síntesis de voz. Intenta con Chrome, Firefox o Edge.");
+    return;
+  }
 
+  document.getElementById("mainMenu").style.display = "none";
+  document.getElementById("audioQuizContainer").style.display = "block";
+  
+  loadAudioQuestion();
+}
+
+function loadAudioQuestion() {
+  const question = questions[currentAudioIndex];
+  
+
+  document.getElementById("audioQuestionNumber").textContent = `Pregunta ${currentAudioIndex + 1}`;
+  document.getElementById("audioQuestionCount").textContent = `de ${questions.length}`;
+  document.getElementById("audioCategory").textContent = getCategoryName(question.category);
+  document.getElementById("audioQuestionText").textContent = question.question;
+  document.getElementById("questionJumpInput").value = currentAudioIndex + 1;
+  
+
+  const answersList = document.getElementById("audioAnswersList");
+  answersList.innerHTML = "";
+  
+  question.options.forEach((option, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${String.fromCharCode(97 + index)})</strong> ${option}`;
+    if (index === question.correct) {
+      li.classList.add("correct");
+    }
+    answersList.appendChild(li);
+  });
+  
+
+  const correctAnswerDiv = document.getElementById("correctAnswerAudio");
+  correctAnswerDiv.innerHTML = `
+    <strong>✅ Respuesta correcta:</strong> ${String.fromCharCode(97 + question.correct)}) ${question.options[question.correct]}
+    <br><strong>💡 Explicación:</strong> ${question.explanation}
+  `;
+
+  document.getElementById("audioPrevBtn").disabled = currentAudioIndex === 0;
+  document.getElementById("audioNextBtn").disabled = currentAudioIndex === questions.length - 1;
+
+  stopCurrentAudio();
+}
+
+function togglePlayPause() {
+  if (isPlaying) {
+    pauseAudio();
+  } else {
+    playCurrentQuestion();
+  }
+}
+
+function playCurrentQuestion() {
+  if (!audioSynthesis) return;
+  
+  const question = questions[currentAudioIndex];
+  
+
+  stopCurrentAudio();
+  
+
+  let textToSpeak = `Pregunta ${currentAudioIndex + 1} de ${questions.length}. `;
+  textToSpeak += `Categoría: ${getCategoryName(question.category)}. `;
+  textToSpeak += `${question.question} `;
+  
+  textToSpeak += "Las opciones son: ";
+  question.options.forEach((option, index) => {
+    textToSpeak += `Opción ${String.fromCharCode(97 + index)}: ${option}. `;
+  });
+  
+  textToSpeak += `La respuesta correcta es la opción ${String.fromCharCode(97 + question.correct)}. `;
+  textToSpeak += `Explicación: ${question.explanation}`;
+  
+
+  currentUtterance = new SpeechSynthesisUtterance(textToSpeak);
+  currentUtterance.lang = 'es-ES';
+  currentUtterance.rate = parseFloat(document.getElementById("speedSelect").value);
+  currentUtterance.pitch = 1;
+  currentUtterance.volume = 1;
+  
+
+  currentUtterance.onstart = () => {
+    isPlaying = true;
+    updatePlayPauseButton();
+    startProgressSimulation();
+  };
+  
+  currentUtterance.onend = () => {
+    isPlaying = false;
+    updatePlayPauseButton();
+    resetProgress();
+    
+
+    if (document.getElementById("autoPlayNext").checked && currentAudioIndex < questions.length - 1) {
+      setTimeout(() => {
+        nextAudioQuestion();
+      }, 1000);
+    }
+  };
+  
+  currentUtterance.onerror = () => {
+    isPlaying = false;
+    updatePlayPauseButton();
+    resetProgress();
+  };
+  
+
+  audioSynthesis.speak(currentUtterance);
+}
+
+function pauseAudio() {
+  if (audioSynthesis && isPlaying) {
+    audioSynthesis.pause();
+    isPlaying = false;
+    updatePlayPauseButton();
+  }
+}
+
+function stopCurrentAudio() {
+  if (audioSynthesis) {
+    audioSynthesis.cancel();
+    isPlaying = false;
+    updatePlayPauseButton();
+    resetProgress();
+  }
+}
+
+function updatePlayPauseButton() {
+  const btn = document.getElementById("playPauseBtn");
+  btn.textContent = isPlaying ? "⏸️" : "▶️";
+}
+
+function repeatCurrentAudio() {
+  stopCurrentAudio();
+  setTimeout(() => {
+    playCurrentQuestion();
+  }, 100);
+}
+
+function previousAudioQuestion() {
+  if (currentAudioIndex > 0) {
+    currentAudioIndex--;
+    loadAudioQuestion();
+  }
+}
+
+function nextAudioQuestion() {
+  if (currentAudioIndex < questions.length - 1) {
+    currentAudioIndex++;
+    loadAudioQuestion();
+  }
+}
+
+function jumpToQuestion(type) {
+  stopCurrentAudio();
+  
+  switch(type) {
+    case 'first':
+      currentAudioIndex = 0;
+      break;
+    case 'last':
+      currentAudioIndex = questions.length - 1;
+      break;
+  }
+  
+  loadAudioQuestion();
+}
+
+function jumpToSpecificQuestion() {
+  const input = document.getElementById("questionJumpInput");
+  const questionNumber = parseInt(input.value);
+  
+  if (questionNumber >= 1 && questionNumber <= questions.length) {
+    stopCurrentAudio();
+    currentAudioIndex = questionNumber - 1;
+    loadAudioQuestion();
+  } else {
+    alert(`Por favor ingresa un número entre 1 y ${questions.length}`);
+    input.value = currentAudioIndex + 1;
+  }
+}
+
+function changePlaybackSpeed() {
+  if (currentUtterance && isPlaying) {
+    const newRate = parseFloat(document.getElementById("speedSelect").value);
+    
+
+    const wasPlaying = isPlaying;
+    stopCurrentAudio();
+    
+    if (wasPlaying) {
+      setTimeout(() => {
+        playCurrentQuestion();
+      }, 100);
+    }
+  }
+}
+
+function startProgressSimulation() {
+
+  const question = questions[currentAudioIndex];
+  const textLength = question.question.length + question.options.join(" ").length + question.explanation.length;
+  const estimatedDuration = (textLength / 10) * 1000;
+  
+  let progress = 0;
+  const interval = 100;
+  const increment = (interval / estimatedDuration) * 100;
+  
+  const progressInterval = setInterval(() => {
+    if (!isPlaying) {
+      clearInterval(progressInterval);
+      return;
+    }
+    
+    progress += increment;
+    if (progress > 100) progress = 100;
+    
+    updateProgress(progress);
+    
+    if (progress >= 100) {
+      clearInterval(progressInterval);
+    }
+  }, interval);
+}
+
+function updateProgress(percentage) {
+  document.getElementById("audioProgressFill").style.width = percentage + "%";
+  document.getElementById("audioProgressSlider").value = percentage;
+  
+
+  const totalSeconds = 30; 
+  const currentSeconds = (percentage / 100) * totalSeconds;
+  
+  document.getElementById("currentTime").textContent = formatTime(currentSeconds);
+  document.getElementById("totalTime").textContent = formatTime(totalSeconds);
+}
+
+function resetProgress() {
+  updateProgress(0);
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showAudioSettings() {
+  alert("Configuración de audio:\n\n• Velocidad: Ajusta la velocidad de reproducción\n• Auto-play: Reproduce automáticamente la siguiente pregunta\n• Navegación: Usa los botones o salta a una pregunta específica\n\n¡Disfruta estudiando con audio!");
+}
 
 
 
@@ -2833,6 +3098,7 @@ function startStudyMode() {
 
   document.getElementById("mainMenu").style.display = "none";
   document.getElementById("quizContainer").style.display = "block";
+
 
   document.getElementById("modeIndicator").innerHTML = "📚 Modo Estudio (200 preguntas)";
   document.getElementById("timer").style.display = "none";
@@ -2891,10 +3157,9 @@ function showQuestion() {
 
   const question = currentQuestions[currentQuestionIndex];
   if (!question) {
-
+    console.error("❌ Pregunta no encontrada para índice:", currentQuestionIndex);
     return;
   }
-
 
   document.getElementById("questionCounter").textContent = `${currentQuestionIndex + 1} / ${currentQuestions.length}`;
   document.getElementById("questionNumber").textContent = `Pregunta ${currentQuestionIndex + 1}`;
@@ -2902,7 +3167,6 @@ function showQuestion() {
 
   const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
   document.getElementById("progressBar").style.width = progress + "%";
-
 
   const optionsContainer = document.getElementById("optionsContainer");
   optionsContainer.innerHTML = "";
@@ -3001,7 +3265,7 @@ function finishQuiz() {
   });
 
   const percentage = Math.round((correctAnswers / currentQuestions.length) * 100);
-  const passed = percentage >= 70;
+  const passed = percentage >= 70; 
 
 
   document.getElementById("quizContainer").style.display = "none";
@@ -3077,11 +3341,17 @@ function showStats() {
 function goBackToMenu() {
   clearInterval(timerInterval);
 
+  if (isAudioMode) {
+    stopCurrentAudio();
+    isAudioMode = false;
+  }
+
 
   document.getElementById("quizContainer").style.display = "none";
   document.getElementById("resultsContainer").style.display = "none";
   document.getElementById("categorySelector").style.display = "none";
   document.getElementById("statsContainer").style.display = "none";
+  document.getElementById("audioQuizContainer").style.display = "none";
 
 
   document.getElementById("mainMenu").style.display = "grid";
@@ -3159,6 +3429,7 @@ function saveStats(percentage, correct, total) {
     timestamp: Date.now(),
   });
 
+
   if (stats.length > 50) {
     stats.splice(0, stats.length - 50);
   }
@@ -3167,12 +3438,13 @@ function saveStats(percentage, correct, total) {
 }
 
 
-document.addEventListener("DOMContentLoaded", function () {
 
+document.addEventListener("DOMContentLoaded", function () {
 
   window.startStudyMode = startStudyMode;
   window.startExamMode = startExamMode;
   window.showCategorySelector = showCategorySelector;
+  window.showAudioQuiz = showAudioQuiz;
   window.showStats = showStats;
   window.goBackToMenu = goBackToMenu;
   window.startPracticeMode = startPracticeMode;
@@ -3182,6 +3454,18 @@ document.addEventListener("DOMContentLoaded", function () {
   window.finishQuiz = finishQuiz;
   window.selectOption = selectOption;
   window.reviewAnswers = reviewAnswers;
+  
+
+  window.togglePlayPause = togglePlayPause;
+  window.previousAudioQuestion = previousAudioQuestion;
+  window.nextAudioQuestion = nextAudioQuestion;
+  window.repeatCurrentAudio = repeatCurrentAudio;
+  window.jumpToQuestion = jumpToQuestion;
+  window.jumpToSpecificQuestion = jumpToSpecificQuestion;
+  window.changePlaybackSpeed = changePlaybackSpeed;
+  window.showAudioSettings = showAudioSettings;
+
+
 });
 
 

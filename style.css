@@ -70,6 +70,10 @@ body {
   border-left: 5px solid #ff9800;
 }
 
+.menu-card.audio {
+  border-left: 5px solid #9c27b0;
+}
+
 .menu-card.stats {
   border-left: 5px solid #2196f3;
 }
@@ -351,6 +355,262 @@ body {
   padding: 30px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   display: none;
+}
+
+.audio-quiz-container {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: none;
+}
+
+.audio-player {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 25px;
+  margin: 20px 0;
+}
+
+.audio-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.question-indicator {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #667eea;
+}
+
+.audio-category {
+  background: #667eea;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.audio-question-text {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  border-left: 4px solid #667eea;
+  min-height: 80px;
+}
+
+.audio-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.audio-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  min-width: 60px;
+}
+
+.audio-btn:hover {
+  background: #5a6fd8;
+  transform: scale(1.05);
+}
+
+.audio-btn.play-pause {
+  background: #4caf50;
+  font-size: 1.5rem;
+  padding: 18px 25px;
+}
+
+.audio-btn.play-pause:hover {
+  background: #45a049;
+}
+
+.audio-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.audio-progress {
+  margin: 20px 0;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.progress-bar-audio {
+  position: relative;
+  background: #e0e0e0;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill-audio {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  height: 100%;
+  width: 0%;
+  transition: width 0.1s ease;
+}
+
+.progress-slider {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #667eea;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.audio-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.speed-control, .auto-play-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.speed-control select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.question-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #5a6268;
+}
+
+#questionJumpInput {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  width: 150px;
+  text-align: center;
+}
+
+.audio-answer-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.audio-answer-section h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+#audioAnswersList {
+  list-style: none;
+  padding: 0;
+}
+
+#audioAnswersList li {
+  background: #f8f9fa;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #e9ecef;
+}
+
+#audioAnswersList li.correct {
+  background: #d4edda;
+  border-left-color: #28a745;
+  font-weight: bold;
+}
+
+.correct-answer-audio {
+  background: #e8f5e8;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .audio-controls {
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .audio-btn {
+    padding: 12px 15px;
+    font-size: 1rem;
+  }
+  
+  .audio-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .question-navigation {
+    flex-direction: column;
+  }
+  
+  #questionJumpInput {
+    width: 100%;
+    max-width: 200px;
+  }
 }
 
 @media (max-width: 768px) {

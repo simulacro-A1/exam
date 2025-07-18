@@ -144,6 +144,94 @@
       </div>
     </div>
 
+    <div id="audioQuizContainer" class="audio-quiz-container">
+      <h2>🎧 Audio Quiz - Balotario Oficial</h2>
+      
+      <div class="audio-player">
+        <div class="audio-info">
+          <div class="question-indicator">
+            <span id="audioQuestionNumber">Pregunta 1</span>
+            <span id="audioQuestionCount">de 200</span>
+          </div>
+          <div class="audio-category" id="audioCategory">General</div>
+        </div>
+
+        <div class="audio-question-text" id="audioQuestionText">
+          Cargando pregunta...
+        </div>
+
+        <div class="audio-controls">
+          <button class="audio-btn previous" id="audioPrevBtn" onclick="previousAudioQuestion()">
+            ⏮️
+          </button>
+          
+          <button class="audio-btn play-pause" id="playPauseBtn" onclick="togglePlayPause()">
+            ▶️
+          </button>
+          
+          <button class="audio-btn next" id="audioNextBtn" onclick="nextAudioQuestion()">
+            ⏭️
+          </button>
+          
+          <button class="audio-btn repeat" onclick="repeatCurrentAudio()">
+            🔄
+          </button>
+        </div>
+
+        <div class="audio-progress">
+          <div class="progress-info">
+            <span id="currentTime">0:00</span>
+            <span id="totalTime">0:00</span>
+          </div>
+          <div class="progress-bar-audio">
+            <div class="progress-fill-audio" id="audioProgressFill"></div>
+            <input type="range" min="0" max="100" value="0" class="progress-slider" id="audioProgressSlider">
+          </div>
+        </div>
+
+        <div class="audio-options">
+          <div class="speed-control">
+            <label>Velocidad:</label>
+            <select id="speedSelect" onchange="changePlaybackSpeed()">
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+            </select>
+          </div>
+          
+          <div class="auto-play-control">
+            <label>
+              <input type="checkbox" id="autoPlayNext" checked>
+              Reproducir siguiente automáticamente
+            </label>
+          </div>
+        </div>
+
+        <div class="question-navigation">
+          <button class="nav-btn" onclick="jumpToQuestion('first')">Primera</button>
+          <input type="number" min="1" max="200" value="1" id="questionJumpInput" placeholder="Ir a pregunta...">
+          <button class="nav-btn" onclick="jumpToSpecificQuestion()">Ir</button>
+          <button class="nav-btn" onclick="jumpToQuestion('last')">Última</button>
+        </div>
+
+        <div class="audio-answer-section" id="audioAnswerSection">
+          <h4>Opciones de respuesta:</h4>
+          <ul id="audioAnswersList"></ul>
+          <div class="correct-answer-audio" id="correctAnswerAudio"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn secondary" onclick="goBackToMenu()">
+          ← Volver al Menú
+        </button>
+        <button class="btn" onclick="showAudioSettings()">
+          ⚙️ Configuración
+        </button>
+      </div>
+    </div>
+
     <div id="resultsContainer" class="results-container quiz-container">
       <h2>🎉 ¡Examen Completado!</h2>
       <div class="score-circle" id="scoreCircle">
