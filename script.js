@@ -3409,6 +3409,211 @@ function startTimer(minutes) {
   }, 1000);
 }
 
+function reviewAnswers() {
+  // Crear el contenedor de revisión
+  document.getElementById("resultsContainer").style.display = "none";
+  
+  // Crear contenedor de revisión si no existe
+  let reviewContainer = document.getElementById("reviewContainer");
+  if (!reviewContainer) {
+    reviewContainer = document.createElement("div");
+    reviewContainer.id = "reviewContainer";
+    reviewContainer.className = "review-container quiz-container";
+    document.querySelector(".container").appendChild(reviewContainer);
+  }
+  
+  reviewContainer.style.display = "block";
+  
+  // Generar el contenido de revisión
+  let reviewHTML = `
+    <div class="review-header">
+      <h2>📋 Revisión Detallada de Respuestas</h2>
+      <div class="review-stats">
+        <span class="stat correct">✅ Correctas: ${userAnswers.filter((answer, index) => answer === currentQuestions[index].correct).length}</span>
+        <span class="stat incorrect">❌ Incorrectas: ${userAnswers.filter((answer, index) => answer !== null && answer !== currentQuestions[index].correct).length}</span>
+        <span class="stat unanswered">⭕ Sin responder: ${userAnswers.filter(answer => answer === null).length}</span>
+      </div>
+    </div>
+    
+    <div class="review-questions">
+  `;
+  
+  currentQuestions.forEach((question, index) => {
+    const userAnswer = userAnswers[index];
+    const isCorrect = userAnswer === question.correct;
+    const isAnswered = userAnswer !== null;
+    
+    let statusClass = 'unanswered';
+    let statusIcon = '⭕';
+    let statusText = 'Sin responder';
+    
+    if (isAnswered) {
+      if (isCorrect) {
+        statusClass = 'correct';
+        statusIcon = '✅';
+        statusText = 'Correcta';
+      } else {
+        statusClass = 'incorrect';
+        statusIcon = '❌';
+        statusText = 'Incorrecta';
+      }
+    }
+    
+    reviewHTML += `
+      <div class="review-question ${statusClass}">
+        <div class="review-question-header">
+          <div class="question-number-review">
+            <span class="question-index">Pregunta ${index + 1}</span>
+            <span class="question-status ${statusClass}">${statusIcon} ${statusText}</span>
+          </div>
+          <div class="question-category">${getCategoryName(question.category)}</div>
+        </div>
+        
+        <div class="review-question-text">${question.question}</div>
+        
+        <div class="review-options">
+    `;
+    
+    question.options.forEach((option, optionIndex) => {
+      let optionClass = '';
+      let optionIcon = '';
+      
+      if (optionIndex === question.correct) {
+        optionClass = 'correct-option';
+        optionIcon = '✅';
+      } else if (optionIndex === userAnswer && userAnswer !== question.correct) {
+        optionClass = 'user-incorrect';
+        optionIcon = '❌';
+      } else if (optionIndex === userAnswer) {
+        optionIcon = '👤';
+      }
+      
+      reviewHTML += `
+        <div class="review-option ${optionClass}">
+          <span class="option-letter">${String.fromCharCode(97 + optionIndex)}</span>
+          <span class="option-text">${option}</span>
+          <span class="option-indicator">${optionIcon}</span>
+        </div>
+      `;
+    });
+    
+    // Mostrar respuesta del usuario si es incorrecta o no respondió
+    if (!isCorrect) {
+      reviewHTML += `
+        <div class="user-answer-info">
+          <strong>Tu respuesta:</strong> ${
+            userAnswer !== null 
+              ? `${String.fromCharCode(97 + userAnswer)}) ${question.options[userAnswer]}`
+              : 'No respondiste'
+          }
+        </div>
+      `;
+    }
+    
+    reviewHTML += `
+        </div>
+        
+        <div class="correct-answer-review">
+          <strong>✅ Respuesta correcta:</strong> ${String.fromCharCode(97 + question.correct)}) ${question.options[question.correct]}
+        </div>
+        
+        <div class="explanation-review">
+          <strong>💡 Explicación:</strong> ${question.explanation}
+        </div>
+      </div>
+    `;
+  });
+  
+  reviewHTML += `
+    </div>
+    
+    <div class="review-controls">
+      <button class="btn secondary" onclick="goBackToResults()">
+        ← Volver a Resultados
+      </button>
+      <button class="btn" onclick="exportReview()">
+        📄 Exportar Revisión
+      </button>
+      <button class="btn success" onclick="goBackToMenu()">
+        🏠 Ir al Menú Principal
+      </button>
+    </div>
+  `;
+  
+  reviewContainer.innerHTML = reviewHTML;
+  
+  // Scroll al inicio
+  reviewContainer.scrollTop = 0;
+}
+
+function goBackToResults() {
+  document.getElementById("reviewContainer").style.display = "none";
+  document.getElementById("resultsContainer").style.display = "block";
+}
+
+function exportReview() {
+  let exportText = `REVISIÓN DETALLADA - SIMULADOR EXAMEN DE MANEJO\n`;
+  exportText += `Fecha: ${new Date().toLocaleDateString('es-PE')}\n`;
+  exportText += `Modo: ${currentMode === "exam" ? "Examen Simulacro" : currentMode === "study" ? "Modo Estudio" : "Práctica por Temas"}\n`;
+  exportText += `Preguntas: ${currentQuestions.length}\n\n`;
+  
+  const correctCount = userAnswers.filter((answer, index) => answer === currentQuestions[index].correct).length;
+  const incorrectCount = userAnswers.filter((answer, index) => answer !== null && answer !== currentQuestions[index].correct).length;
+  const unansweredCount = userAnswers.filter(answer => answer === null).length;
+  
+  exportText += `RESUMEN:\n`;
+  exportText += `✅ Correctas: ${correctCount}\n`;
+  exportText += `❌ Incorrectas: ${incorrectCount}\n`;
+  exportText += `⭕ Sin responder: ${unansweredCount}\n`;
+  exportText += `📊 Porcentaje: ${Math.round((correctCount / currentQuestions.length) * 100)}%\n\n`;
+  
+  exportText += `REVISIÓN DETALLADA:\n`;
+  exportText += `${'='.repeat(50)}\n\n`;
+  
+  currentQuestions.forEach((question, index) => {
+    const userAnswer = userAnswers[index];
+    const isCorrect = userAnswer === question.correct;
+    const isAnswered = userAnswer !== null;
+    
+    exportText += `PREGUNTA ${index + 1} - ${getCategoryName(question.category)}\n`;
+    exportText += `${question.question}\n\n`;
+    
+    question.options.forEach((option, optionIndex) => {
+      const prefix = String.fromCharCode(97 + optionIndex);
+      let marker = '';
+      
+      if (optionIndex === question.correct) {
+        marker = ' ✅ (CORRECTA)';
+      } else if (optionIndex === userAnswer && userAnswer !== question.correct) {
+        marker = ' ❌ (TU RESPUESTA)';
+      } else if (optionIndex === userAnswer) {
+        marker = ' 👤 (TU RESPUESTA)';
+      }
+      
+      exportText += `${prefix}) ${option}${marker}\n`;
+    });
+    
+    exportText += `\nTu respuesta: ${userAnswer !== null ? String.fromCharCode(97 + userAnswer) + ') ' + question.options[userAnswer] : 'No respondiste'}\n`;
+    exportText += `Respuesta correcta: ${String.fromCharCode(97 + question.correct)}) ${question.options[question.correct]}\n`;
+    exportText += `Estado: ${isCorrect ? '✅ CORRECTA' : (isAnswered ? '❌ INCORRECTA' : '⭕ SIN RESPONDER')}\n`;
+    exportText += `Explicación: ${question.explanation}\n`;
+    exportText += `${'-'.repeat(30)}\n\n`;
+  });
+  
+  // Crear y descargar archivo
+  const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `revision-examen-${new Date().toISOString().split('T')[0]}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  alert('📄 Revisión exportada exitosamente como archivo de texto');
+}
+
 function getElapsedTime() {
   if (!startTime) return "No disponible";
 
